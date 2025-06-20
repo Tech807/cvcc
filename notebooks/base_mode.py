@@ -4,15 +4,20 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import OrdinalEncoder
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
+from sklearn.metrics import accuracy_score
 from sklearn.compose import ColumnTransformer
-import os
+from sklearn.ensemble import RandomForestClassifier
+import dagshub
+import mlflow
 
-os.makedirs("data/interim",exist_ok=True)
+dagshub.init(repo_owner='Tech807', repo_name='cvcc', mlflow=True)
 
-X_train = pd.read_csv("data/processed/X_train.csv")
-X_test = pd.read_csv("data/processed/X_test.csv")
-y_train = pd.read_csv("data/processed/y_train.csv")
-y_test = pd.read_csv("data/processed/y_test.csv")
+df = pd.read_csv("https://raw.githubusercontent.com/MainakRepositor/Datasets/refs/heads/master/drug200.csv")
+
+X = df.drop(columns=["Drug"])
+y = df["Drug"]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 
 transformer = ColumnTransformer(
@@ -36,9 +41,26 @@ y_train_new = scaler.fit_transform(y_train.values.ravel())
 y_test_new = scaler.transform(y_test.values.ravel())
 
 
-X_train_new.to_csv("data/interim/X_train_transformed.csv", index=False)
-X_test_new.to_csv("data/interim/X_test_transformed.csv", index=False)
-pd.DataFrame(y_train_new, columns=["target"]).to_csv("data/interim/y_train_transformed.csv", index=False)
-pd.DataFrame(y_test_new, columns=["target"]).to_csv("data/interim/y_test_transformed.csv", index=False)
 
-print("Data transformation complete. Files saved in 'data/interim'")
+mlflow.set_tracking_uri("https://dagshub.com/Tech807/cvcc.mlflow")
+
+mlflow.set_experiment("Base model")
+
+with mlflow.start_run(run_name="RandomForestClassifier"):
+    
+    n_estimator = 50
+    
+    model = RandomForestClassifier(n_estimators=n_estimator)
+    
+    
+    model.fit(X_train_new,y_train_new)
+    
+    y_pred = model.predict(X_test_new)
+    
+    accuracy = accuracy_score(y_test_new,y_pred)
+    
+    mlflow.log_metric("accuracy",accuracy)
+    mlflow.log_param("n_estimator",n_estimator)
+    
+    mlflow.log_artifact(__file__)
+    mlflow.sklearn.log_model(model,"model")

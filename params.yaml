@@ -1,0 +1,2 @@
+split_data:
+  test_size:  0.3

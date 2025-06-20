@@ -1,0 +1,31 @@
+stages:
+  make_dataset:
+    cmd: python src/data/make_dataset.py
+    deps:
+    - src/data/make_dataset.py
+    outs:
+    - data/raw
+  split_data:
+    cmd: python src/data/split_data.py
+    deps:
+    - src/data/split_data.py
+    params:
+    - split_data.test_size
+    outs:
+    - data/processed
+  build_features:
+    cmd: python src/features/build_features.py
+    deps:
+    - src/features/build_features.py
+    outs:
+    - data/interim
+  train_model:
+    cmd: python src/models/train_model.py
+    deps:
+    - src/models/train_model.py
+    outs:
+    - models
+  predict_model:
+    cmd: python src/models/predict_model.py
+    deps:
+    - src/models/predict_model.py
