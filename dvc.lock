@@ -22,11 +22,11 @@ stages:
       size: 732
     params:
       params.yaml:
-        split_data.test_size: 0.2
+        split_data.test_size: 0.3
     outs:
     - path: data/processed
       hash: md5
-      md5: a6210e6f9f9fa98777bd1c5df62f41ba.dir
+      md5: 900ecaa2aeea45d3604d1629a18320b6.dir
       size: 6268
       nfiles: 4
   build_features:
@@ -60,5 +60,5 @@ stages:
     deps:
     - path: src/models/predict_model.py
       hash: md5
-      md5: 66af1b4aecef8d8075cee27515229007
-      size: 455
+      md5: fa7801e968571eade885b56d3803b7e3
+      size: 976

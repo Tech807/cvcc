@@ -22,10 +22,15 @@ with mlflow.start_run():
     
     y_pred = model.predict(X_test)
     
-    accuracy = model.predict(y_test,y_pred)
+    accuracy = accuracy_score(y_test,y_pred)
     
-    mlflow.log_param("accuracy",accuracy)
+    mlflow.log_metric("accuracy",accuracy)
     
     mlflow.log_artifact(__file__)
     
     mlflow.sklearn.log_model(model,"model")
+    
+    if hasattr(model, 'get_params'):
+                params = model.get_params()
+                for param_name, param_value in params.items():
+                    mlflow.log_param(param_name, param_value)
